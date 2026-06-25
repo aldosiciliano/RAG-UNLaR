@@ -1,0 +1,9 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+chromadb
+torch==2.7.1+cpu
+sentence-transformers==3.0.1
+pdfplumber
+streamlit
+requests
+reportlab
