@@ -1,0 +1,6 @@
+RAG-UNLAR/venv/
+RAG-UNLAR/db/
+RAG-UNLAR/__pycache__/
+RAG-UNLAR/modules/__pycache__/
+*.pyc
+.streamlit/
