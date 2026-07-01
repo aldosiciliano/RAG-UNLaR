@@ -1,6 +1,11 @@
-import requests
+import json
 
+import requests
 from config import LMSTUDIO_BASE_URL, LMSTUDIO_MODEL, SYSTEM_PROMPT
+
+TEMPERATURE = 0.1
+MAX_TOKENS = 500
+REQUEST_TIMEOUT = 60
 
 
 def lmstudio_disponible() -> tuple[bool, str]:
@@ -15,10 +20,18 @@ def lmstudio_disponible() -> tuple[bool, str]:
         return False, str(exc)
 
 
-def preguntar(consulta: str, chunks: list[dict], historial: list[dict] | None = None) -> str:
+def construir_mensajes(
+    consulta: str,
+    chunks: list[dict],
+    historial: list[dict] | None = None,
+) -> list[dict]:
     historial = historial or []
     contexto = "\n\n".join(
-        f"Fuente: {chunk['archivo']} página {chunk['pagina']}\n{chunk['texto']}"
+        (
+            f"Fuente: {chunk['archivo']} página {chunk['pagina']}\n"
+            f"URL oficial: {chunk.get('url', '')}\n"
+            f"{chunk['texto']}"
+        )
         for chunk in chunks
     )
 
@@ -35,17 +48,63 @@ def preguntar(consulta: str, chunks: list[dict], historial: list[dict] | None = 
             ),
         }
     )
+    return mensajes
+
+
+def preguntar(
+    consulta: str, chunks: list[dict], historial: list[dict] | None = None
+) -> str:
+    mensajes = construir_mensajes(consulta, chunks, historial)
 
     respuesta = requests.post(
         f"{LMSTUDIO_BASE_URL}/chat/completions",
         json={
             "model": LMSTUDIO_MODEL,
             "messages": mensajes,
-            "temperature": 0.1,
-            "max_tokens": 500,
+            "temperature": TEMPERATURE,
+            "max_tokens": MAX_TOKENS,
         },
-        timeout=60,
+        timeout=REQUEST_TIMEOUT,
     )
     respuesta.raise_for_status()
     data = respuesta.json()
     return data["choices"][0]["message"]["content"].strip()
+
+
+def preguntar_stream(
+    consulta: str,
+    chunks: list[dict],
+    historial: list[dict] | None = None,
+):
+    mensajes = construir_mensajes(consulta, chunks, historial)
+
+    with requests.post(
+        f"{LMSTUDIO_BASE_URL}/chat/completions",
+        json={
+            "model": LMSTUDIO_MODEL,
+            "messages": mensajes,
+            "temperature": TEMPERATURE,
+            "max_tokens": MAX_TOKENS,
+            "stream": True,
+        },
+        timeout=REQUEST_TIMEOUT,
+        stream=True,
+    ) as respuesta:
+        respuesta.raise_for_status()
+        for linea in respuesta.iter_lines(decode_unicode=True):
+            if not linea:
+                continue
+            if linea.startswith("data: "):
+                linea = linea.removeprefix("data: ").strip()
+            if linea == "[DONE]":
+                break
+
+            try:
+                data = json.loads(linea)
+            except ValueError:
+                continue
+
+            delta = data.get("choices", [{}])[0].get("delta", {})
+            contenido = delta.get("content")
+            if contenido:
+                yield contenido

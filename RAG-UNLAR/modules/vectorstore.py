@@ -63,6 +63,7 @@ def indexar_chunks(chunks: list[dict]) -> int:
         {
             "archivo": chunk["archivo"],
             "ruta": chunk["ruta"],
+            "url": chunk.get("url", ""),
             "pagina": chunk["pagina"],
             "chunk": chunk["chunk"],
         }
@@ -98,6 +99,7 @@ def buscar_en_store(consulta: str, n_resultados: int) -> list[dict]:
                 "texto": texto,
                 "archivo": metadata["archivo"],
                 "ruta": metadata["ruta"],
+                "url": metadata.get("url", ""),
                 "pagina": metadata["pagina"],
                 "chunk": metadata["chunk"],
                 "similitud": 1 - float(distancia),

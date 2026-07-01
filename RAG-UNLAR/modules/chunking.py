@@ -40,6 +40,7 @@ def dividir_en_chunks(
                     "id": f"{pagina['archivo']}::p{pagina['pagina']}::c{idx}",
                     "archivo": pagina["archivo"],
                     "ruta": pagina["ruta"],
+                    "url": pagina.get("url", ""),
                     "pagina": pagina["pagina"],
                     "chunk": idx,
                     "texto": texto,

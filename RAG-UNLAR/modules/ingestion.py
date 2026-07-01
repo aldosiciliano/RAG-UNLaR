@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pdfplumber
+from config import PDF_URLS
 
 
 def cargar_pdf(ruta_pdf: str | Path) -> list[dict]:
@@ -17,6 +18,7 @@ def cargar_pdf(ruta_pdf: str | Path) -> list[dict]:
                 {
                     "archivo": ruta.name,
                     "ruta": str(ruta),
+                    "url": PDF_URLS.get(ruta.name, ""),
                     "pagina": idx,
                     "texto": texto,
                 }
