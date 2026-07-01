@@ -15,9 +15,9 @@ except ImportError:
 
 
 PREGUNTAS_SUGERIDAS = [
-    "¿Qué información aparece en la página 1?",
-    "¿Cuál es el código de la página 2?",
-    "¿Qué datos relevantes contiene el documento?",
+    "¿Qué propone el proyecto de Giuliano sobre clasificación de riesgo?",
+    "¿Cómo define la Ley Turing el impacto de la IA en el sistema legal?",
+    "¿Qué sanciones prevé el régimen de uso responsable de la IA?",
 ]
 
 
@@ -70,6 +70,8 @@ def _mostrar_fuentes() -> None:
         with st.expander(
             f"{resultado['archivo']} - página {resultado['pagina']}{etiqueta_similitud}"
         ):
+            if resultado.get("url"):
+                st.link_button("Abrir fuente oficial", resultado["url"])
             st.write(resultado["texto"])
 
 

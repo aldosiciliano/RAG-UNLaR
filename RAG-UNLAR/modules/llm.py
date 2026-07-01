@@ -27,7 +27,11 @@ def construir_mensajes(
 ) -> list[dict]:
     historial = historial or []
     contexto = "\n\n".join(
-        f"Fuente: {chunk['archivo']} página {chunk['pagina']}\n{chunk['texto']}"
+        (
+            f"Fuente: {chunk['archivo']} página {chunk['pagina']}\n"
+            f"URL oficial: {chunk.get('url', '')}\n"
+            f"{chunk['texto']}"
+        )
         for chunk in chunks
     )
 

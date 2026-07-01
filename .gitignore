@@ -4,3 +4,6 @@ RAG-UNLAR/__pycache__/
 RAG-UNLAR/modules/__pycache__/
 *.pyc
 .streamlit/
+.RAG-UNLAR/AGENTS.MD
+AGENTS.md
+.codex/rules/ecc/
