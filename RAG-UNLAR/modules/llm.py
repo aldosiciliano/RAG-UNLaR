@@ -91,7 +91,11 @@ def preguntar_stream(
         stream=True,
     ) as respuesta:
         respuesta.raise_for_status()
-        for linea in respuesta.iter_lines(decode_unicode=True):
+        for linea_bytes in respuesta.iter_lines(decode_unicode=False):
+            try:
+                linea = linea_bytes.decode("utf-8")
+            except UnicodeDecodeError:
+                continue
             if not linea:
                 continue
             if linea.startswith("data: "):

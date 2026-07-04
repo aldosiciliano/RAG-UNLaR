@@ -4,6 +4,16 @@ import pdfplumber
 from config import PDF_URLS
 
 
+def fix_encoding(texto: str) -> str:
+    """
+    Corrige mojibake producido cuando texto UTF-8 fue decodificado como Latin-1.
+    """
+    try:
+        return texto.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return texto
+
+
 def cargar_pdf(ruta_pdf: str | Path) -> list[dict]:
     ruta = Path(ruta_pdf)
     paginas: list[dict] = []
@@ -11,6 +21,8 @@ def cargar_pdf(ruta_pdf: str | Path) -> list[dict]:
     with pdfplumber.open(ruta) as pdf:
         for idx, pagina in enumerate(pdf.pages, start=1):
             texto = pagina.extract_text() or ""
+            if texto:
+                texto = fix_encoding(texto)
             texto = texto.strip()
             if not texto:
                 continue
